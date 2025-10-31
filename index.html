@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACS藥物連結</title>
+<title>四大隊ACS藥物提醒</title>
 <style>
   body {
     font-family: "Noto Sans TC", Arial, sans-serif;
@@ -37,13 +37,46 @@
     text-decoration: none; /* 移除超連結底線 */
     transition: 0.3s;
     border: 2px solid #333; /* 輕微邊框 */
+    cursor: pointer; /* 顯示為可點擊 */
   }
-  /* 滑鼠懸停效果 (模擬啟用狀態的視覺回饋) */
+  /* 滑鼠懸停效果 */
   .med-card:hover {
-    background-color: #e91e63; /* 點擊時的亮眼顏色 */
+    background-color: #333; /* 懸停時略微變亮 */
+    border-color: #5dc1ff;
+  }
+  /* 點擊後啟用狀態 */
+  .med-card.active {
+    background-color: #e91e63; /* 點擊後保持亮色 */
     box-shadow: 0 0 12px #e91e63;
     border-color: #e91e63;
   }
+
+  /* 圖片顯示區域 */
+  .image-display-area {
+    margin-top: 20px;
+    background-color: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    min-height: 100px; /* 至少有一個高度，避免內容跳動 */
+    display: none; /* 預設隱藏 */
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  }
+  .image-display-area img {
+    max-width: 100%; /* 圖片適應容器寬度 */
+    height: auto;
+    border-radius: 8px;
+    display: block; /* 移除圖片底部多餘空間 */
+    margin: 0 auto; /* 圖片置中 */
+  }
+  .image-display-area p.placeholder {
+    color: #bbb;
+    font-style: italic;
+    line-height: 100px; /* 垂直置中 */
+    margin: 0;
+  }
+
   /* 備註 */
   .note {
     font-size: 14px;
@@ -54,16 +87,53 @@
 </style>
 </head>
 <body>
-  <h2>ACS藥物連結</h2>
+  <h2>四大隊ACS藥物提醒</h2>
 
   <div class="med-container">
-    <a href="Aspirin.JPG" class="med-card" target="_blank">Aspirin</a>
-
-    <a href="NTG.JPG" class="med-card" target="_blank">NTG</a>
-
-    <a href="Ticagrelor.JPG" class="med-card" target="_blank">Ticagrelor</a>
+    <a href="#" class="med-card" data-image="Aspirin.JPG" id="aspirinCard">Aspirin</a>
+    <a href="#" class="med-card" data-image="NTG.JPG" id="ntgCard">NTG</a>
+    <a href="#" class="med-card" data-image="Ticagrelor.JPG" id="ticagrelorCard">Ticagrelor</a>
   </div>
 
-  <p class="note">點擊藥物名稱將在新分頁中開啟對應的資訊圖片。</p>
+  <div id="imageDisplayArea" class="image-display-area">
+    <p class="placeholder">點擊上方藥物名稱，將在此處顯示相關圖片。</p>
+  </div>
+
+  <p class="note">點擊藥物名稱，相關圖片將在此頁面下方顯示或隱藏。</p>
+
+<script>
+  const medCards = document.querySelectorAll('.med-card');
+  const imageDisplayArea = document.getElementById('imageDisplayArea');
+  const placeholderText = imageDisplayArea.querySelector('.placeholder');
+  let currentActiveCard = null; // 追蹤當前啟用的卡片
+
+  medCards.forEach(card => {
+    card.addEventListener('click', function(event) {
+      event.preventDefault(); // 阻止 <a> 標籤預設的跳轉行為
+
+      const imageUrl = this.getAttribute('data-image'); // 獲取圖片路徑
+
+      // 如果點擊的是當前已經打開的卡片
+      if (currentActiveCard === this) {
+        // 則隱藏圖片區域並移除 active 狀態
+        imageDisplayArea.style.display = 'none';
+        imageDisplayArea.innerHTML = '<p class="placeholder">點擊上方藥物名稱，將在此處顯示相關圖片。</p>';
+        this.classList.remove('active');
+        currentActiveCard = null;
+      } else {
+        // 否則，先移除所有卡片的 active 狀態
+        medCards.forEach(c => c.classList.remove('active'));
+        
+        // 設定當前卡片為 active
+        this.classList.add('active');
+        currentActiveCard = this;
+
+        // 清空圖片區域，載入新圖片
+        imageDisplayArea.innerHTML = `<img src="${imageUrl}" alt="${this.textContent} 資訊">`;
+        imageDisplayArea.style.display = 'block'; // 顯示圖片區域
+      }
+    });
+  });
+</script>
 </body>
 </html>
