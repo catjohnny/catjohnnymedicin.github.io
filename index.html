@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>四大隊ACS藥物提醒</title>
+<title>緊急藥物禁忌症核對清單</title>
 <style>
   body {
     font-family: "Noto Sans TC", Arial, sans-serif;
@@ -17,123 +17,211 @@
     color: #5dc1ff; /* 標題顏色 */
     margin-bottom: 30px;
   }
-  /* 藥物卡片容器 */
+  /* 藥物容器與卡片樣式 */
   .med-container {
     display: flex;
-    flex-direction: column; /* 垂直排列 */
-    gap: 15px; /* 卡片間距 */
+    flex-direction: column;
+    gap: 15px;
   }
-  /* 藥物卡片/按鈕樣式 */
+  .med-item {
+    background-color: #1b1b1b;
+    border-radius: 10px;
+    overflow: hidden; /* 確保內容不會溢出 */
+    border: 2px solid #333;
+  }
   .med-card {
-    display: block; /* 讓 <a> 像一個區塊 */
+    display: block;
     width: 100%;
     text-align: center;
-    background-color: #1b1b1b; /* 深色背景 */
     color: #fff;
-    padding: 25px 0;
+    padding: 20px 0;
     font-size: 22px;
     font-weight: bold;
-    border-radius: 10px;
-    text-decoration: none; /* 移除超連結底線 */
+    text-decoration: none;
     transition: 0.3s;
-    border: 2px solid #333; /* 輕微邊框 */
-    cursor: pointer; /* 顯示為可點擊 */
-  }
-  /* 滑鼠懸停效果 */
-  .med-card:hover {
-    background-color: #333; /* 懸停時略微變亮 */
-    border-color: #5dc1ff;
+    cursor: pointer;
+    background-color: #1b1b1b;
+    border: none;
   }
   /* 點擊後啟用狀態 */
   .med-card.active {
     background-color: #e91e63; /* 點擊後保持亮色 */
-    box-shadow: 0 0 12px #e91e63;
-    border-color: #e91e63;
+    box-shadow: 0 0 12px rgba(233, 30, 99, 0.5);
   }
 
-  /* 圖片顯示區域 */
-  .image-display-area {
-    margin-top: 20px;
-    background-color: #1b1b1b;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    min-height: 100px; /* 至少有一個高度，避免內容跳動 */
+  /* 核對清單區域 */
+  .checklist-area {
+    padding: 10px 15px;
     display: none; /* 預設隱藏 */
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
   }
-  .image-display-area img {
-    max-width: 100%; /* 圖片適應容器寬度 */
-    height: auto;
-    border-radius: 8px;
-    display: block; /* 移除圖片底部多餘空間 */
-    margin: 0 auto; /* 圖片置中 */
+  .checklist-area p {
+    font-size: 16px;
+    color: #ccc;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: bold;
   }
-  .image-display-area p.placeholder {
-    color: #bbb;
-    font-style: italic;
-    line-height: 100px; /* 垂直置中 */
-    margin: 0;
+  .checklist-area label {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    margin-bottom: 5px;
+  }
+  .checklist-area input[type="checkbox"] {
+    transform: scale(1.1);
+    margin-right: 10px;
+    flex-shrink: 0; /* 避免核取方塊被擠壓 */
   }
 
-  /* 備註 */
-  .note {
-    font-size: 14px;
-    color: #bbb;
+  /* 藥物執行方框文字 */
+  .result-box {
+    margin: 15px 0 0 0;
+    padding: 15px;
+    background-color: #008800; /* 綠色背景表示安全 */
+    color: #fff;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
     text-align: center;
-    margin-top: 30px;
+    display: none; /* 預設隱藏 */
+    box-shadow: 0 0 10px #008800;
   }
 </style>
 </head>
 <body>
-  <h2>四大隊ACS藥物提醒</h2>
+  <h2>緊急藥物禁忌症核對</h2>
 
   <div class="med-container">
-    <a href="#" class="med-card" data-image="Aspirin.JPG" id="aspirinCard">Aspirin</a>
-    <a href="#" class="med-card" data-image="NTG.JPG" id="ntgCard">NTG</a>
-    <a href="#" class="med-card" data-image="Ticagrelor.JPG" id="ticagrelorCard">Ticagrelor</a>
-  </div>
+    
+    <div class="med-item" id="ticagrelorItem">
+      <button class="med-card" data-drug="ticagrelor">Ticagrelor</button>
+      <div class="checklist-area">
+        <p>請確認無以下禁忌症：</p>
+        <label><input type="checkbox" class="chk-ticagrelor"> 病患對 Ticagrelor (Brilinta)類過敏</label>
+        <label><input type="checkbox" class="chk-ticagrelor"> 病患有嚴重貧血、凝血缺陷或服用抗凝血劑</label>
+        <label><input type="checkbox" class="chk-ticagrelor"> 病患有出血點、大片瘀血或疑似活動性病理性出血(例如:主動脈剝離、消化道出血)</label>
+        <label><input type="checkbox" class="chk-ticagrelor"> 病患有顱內出血病史</label>
+        <label><input type="checkbox" class="chk-ticagrelor"> 病患有嚴重肝功能不全</label>
+        
+        <div class="result-box">通知線上醫導 口服2顆(180mg)絞碎吞下</div>
+      </div>
+    </div>
 
-  <div id="imageDisplayArea" class="image-display-area">
-    <p class="placeholder">點擊上方藥物名稱，將在此處顯示相關圖片。</p>
-  </div>
+    <div class="med-item" id="aspirinItem">
+      <button class="med-card" data-drug="aspirin">Aspirin</button>
+      <div class="checklist-area">
+        <p>請確認無以下禁忌症：</p>
+        <label><input type="checkbox" class="chk-aspirin"> 病患對阿斯匹林類過敏</label>
+        <label><input type="checkbox" class="chk-aspirin"> 病患有嚴重貧血、凝血缺陷或服用抗凝血劑</label>
+        <label><input type="checkbox" class="chk-aspirin"> 病患有出血點、大片瘀血或疑似活動性病理性出血(例如:主動脈剝離、消化道出血)</label>
+        <label><input type="checkbox" class="chk-aspirin"> 病患有顱內出血病史</label>
+        <label><input type="checkbox" class="chk-aspirin"> 需做12導程ECG</label>
+        <label><input type="checkbox" class="chk-aspirin"> 需雙側肢體脈壓差&lt;20mmHg</label>
+        
+        <div class="result-box">口服3顆(300mg)絞碎吞下</div>
+      </div>
+    </div>
 
-  <p class="note">點擊藥物名稱，相關圖片將在此頁面下方顯示或隱藏。</p>
+    <div class="med-item" id="ntgItem">
+      <button class="med-card" data-drug="ntg">NTG</button>
+      <div class="checklist-area">
+        <p>請確認無以下禁忌症：</p>
+        <label><input type="checkbox" class="chk-ntg"> 收縮壓&lt;90mmHg</label>
+        <label><input type="checkbox" class="chk-ntg"> 脈搏&lt;50 次/分鐘。</label>
+        <label><input type="checkbox" class="chk-ntg"> 服用中西壯陽藥者。</label>
+        <label><input type="checkbox" class="chk-ntg"> 對NTG過敏</label>
+        <label><input type="checkbox" class="chk-ntg"> 需做12導程ECG</label>
+        <label><input type="checkbox" class="chk-ntg"> 右心衰竭者(如有頸靜脈怒張或下肢嚴重水腫等症狀)。</label>
+        
+        <div class="result-box">口服3顆(300mg)絞碎吞下</div>
+      </div>
+    </div>
+
+  </div>
 
 <script>
+  // 獲取所有藥物按鈕
   const medCards = document.querySelectorAll('.med-card');
-  const imageDisplayArea = document.getElementById('imageDisplayArea');
-  const placeholderText = imageDisplayArea.querySelector('.placeholder');
-  let currentActiveCard = null; // 追蹤當前啟用的卡片
+  let currentOpenItem = null; // 追蹤當前展開的藥物項目
 
+  // ----------------------------------
+  // 函數：檢查特定藥物的核取方塊狀態
+  // ----------------------------------
+  function checkChecklist(drugName) {
+    // 根據藥物名稱，選取對應的核取方塊
+    const checkboxes = document.querySelectorAll(`.chk-${drugName}`);
+    // 獲取結果顯示框 (Result Box)
+    const resultBox = document.querySelector(`#${drugName}Item .result-box`);
+    
+    // 檢查是否所有核取方塊都被勾選
+    const allChecked = Array.from(checkboxes).every(c => c.checked);
+
+    if (allChecked) {
+      resultBox.style.display = 'block'; // 全部勾選則顯示結果
+    } else {
+      resultBox.style.display = 'none'; // 否則隱藏結果
+    }
+  }
+
+  // ----------------------------------
+  // 函數：處理按鈕點擊
+  // ----------------------------------
+  function handleCardClick(event) {
+    const card = event.currentTarget;
+    const item = card.closest('.med-item'); // 獲取當前按鈕所在的父容器 (med-item)
+    const checklistArea = item.querySelector('.checklist-area');
+    const drugName = card.getAttribute('data-drug');
+    
+    // 如果點擊的是當前已經打開的項目 (收回動作)
+    if (currentOpenItem === item) {
+      checklistArea.style.display = 'none';
+      card.classList.remove('active');
+      item.querySelector('.result-box').style.display = 'none'; // 隱藏結果
+      currentOpenItem = null;
+    } else {
+      // 點擊新的項目 (展開動作)
+      
+      // 1. 關閉並重置所有其他項目
+      if (currentOpenItem) {
+        currentOpenItem.querySelector('.checklist-area').style.display = 'none';
+        currentOpenItem.querySelector('.med-card').classList.remove('active');
+        currentOpenItem.querySelector('.result-box').style.display = 'none';
+      }
+
+      // 2. 展開當前項目
+      checklistArea.style.display = 'block';
+      card.classList.add('active');
+      currentOpenItem = item;
+
+      // 3. 初始檢查清單狀態（確保結果框能立即根據預設狀態顯示）
+      checkChecklist(drugName);
+    }
+  }
+  
+  // ----------------------------------
+  // 監聽器設定
+  // ----------------------------------
+
+  // 1. 監聽藥物按鈕點擊事件 (展開/收回清單)
   medCards.forEach(card => {
-    card.addEventListener('click', function(event) {
-      event.preventDefault(); // 阻止 <a> 標籤預設的跳轉行為
+    card.addEventListener('click', handleCardClick);
+  });
 
-      const imageUrl = this.getAttribute('data-image'); // 獲取圖片路徑
-
-      // 如果點擊的是當前已經打開的卡片
-      if (currentActiveCard === this) {
-        // 則隱藏圖片區域並移除 active 狀態
-        imageDisplayArea.style.display = 'none';
-        imageDisplayArea.innerHTML = '<p class="placeholder">點擊上方藥物名稱，將在此處顯示相關圖片。</p>';
-        this.classList.remove('active');
-        currentActiveCard = null;
-      } else {
-        // 否則，先移除所有卡片的 active 狀態
-        medCards.forEach(c => c.classList.remove('active'));
-        
-        // 設定當前卡片為 active
-        this.classList.add('active');
-        currentActiveCard = this;
-
-        // 清空圖片區域，載入新圖片
-        imageDisplayArea.innerHTML = `<img src="${imageUrl}" alt="${this.textContent} 資訊">`;
-        imageDisplayArea.style.display = 'block'; // 顯示圖片區域
+  // 2. 監聽所有核取方塊的變化 (控制結果方框)
+  const allCheckboxes = document.querySelectorAll('.checklist-area input[type="checkbox"]');
+  allCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      // 根據核取方塊的 class 來判斷是哪個藥物，並執行檢查
+      if (this.classList.contains('chk-ticagrelor')) {
+        checkChecklist('ticagrelor');
+      } else if (this.classList.contains('chk-aspirin')) {
+        checkChecklist('aspirin');
+      } else if (this.classList.contains('chk-ntg')) {
+        checkChecklist('ntg');
       }
     });
   });
+
 </script>
 </body>
 </html>
