@@ -23,9 +23,13 @@
     flex-direction: column;
     gap: 15px;
   }
-    #operationBox li strong {
-      color: #ffd700; /* 強調關鍵數值 */
-   }
+  /* >>>>>>>>> 新增/修改數據高亮樣式 <<<<<<<<< */
+  strong {
+    color: #ffd700; /* 黃色，使數據顯眼 */
+    font-weight: bold;
+  }
+  /* >>>>>>>>> 移除冗餘的 #operationBox li strong 樣式，統一使用上面的 strong <<<<<<<<< */
+
   .med-item {
     background-color: #1b1b1b;
     border-radius: 10px;
@@ -97,7 +101,7 @@
   <div class="med-container">
     
     <div class="med-item" id="aspirinItem">
-      <button class="med-card" data-drug="aspirin">Aspirin 3顆▶️需做EKG</button>
+      <button class="med-card" data-drug="aspirin">Aspirin <strong>3顆</strong>▶️需做EKG</button>
       <div class="checklist-area">
         <p>請確認無以下禁忌症：</p>
         <label><input type="checkbox" class="chk-aspirin"> 病患對阿斯匹林類過敏</label>
@@ -106,27 +110,27 @@
         <label><input type="checkbox" class="chk-aspirin"> 病患有顱內出血病史</label>
         <label><input type="checkbox" class="chk-aspirin"> 需雙側肢體脈壓差<strong>&lt;20mmHg</strong></label>
         
-        <div class="result-box">口服3顆(300mg)絞碎吞下</div>
+        <div class="result-box">口服<strong>3顆(300mg)</strong>絞碎吞下</div>
       </div>
     </div>
 
     <div class="med-item" id="ntgItem">
-      <button class="med-card" data-drug="ntg">NTG最多 3顆▶️T2可協助給予</button>
+      <button class="med-card" data-drug="ntg">NTG最多 <strong>3顆</strong>▶️T2可協助給予</button>
       <div class="checklist-area">
         <p>請確認無以下禁忌症：</p>
-        <label><input type="checkbox" class="chk-ntg"> 收縮壓&lt;90mmHg</label>
-        <label><input type="checkbox" class="chk-ntg"> 脈搏&lt;50 次/分鐘。</label>
+        <label><input type="checkbox" class="chk-ntg"> 收縮壓<strong>&lt;90mmHg</strong></label>
+        <label><input type="checkbox" class="chk-ntg"> 脈搏<strong>&lt;50 次/分鐘</strong>。</label>
         <label><input type="checkbox" class="chk-ntg"> 服用中西壯陽藥者。</label>
         <label><input type="checkbox" class="chk-ntg"> 對NTG過敏</label>
         <label><input type="checkbox" class="chk-ntg"> 需做12導程ECG</label>
         <label><input type="checkbox" class="chk-ntg"> 右心衰竭者(如有頸靜脈怒張或下肢嚴重水腫等症狀)。</label>
         
-        <div class="result-box">口服3顆(300mg)絞碎吞下</div>
+        <div class="result-box">口服<strong>3顆(300mg)</strong>絞碎吞下</div>
       </div>
     </div>
     
     <div class="med-item" id="ticagrelorItem">
-      <button class="med-card" data-drug="ticagrelor">Ticagrelor 2顆▶️需致電MD確認</button>
+      <button class="med-card" data-drug="ticagrelor">Ticagrelor <strong>2顆</strong>▶️需致電MD確認</button>
       <div class="checklist-area">
         <p>請確認無以下禁忌症：</p>
         <label><input type="checkbox" class="chk-ticagrelor"> 病患對 Ticagrelor (Brilinta)類過敏</label>
@@ -135,7 +139,7 @@
         <label><input type="checkbox" class="chk-ticagrelor"> 病患有顱內出血病史</label>
         <label><input type="checkbox" class="chk-ticagrelor"> 病患有嚴重肝功能不全</label>
         
-        <div class="result-box">通知線上醫導 口服2顆(180mg)絞碎吞下</div>
+        <div class="result-box">通知線上醫導 口服<strong>2顆(180mg)</strong>絞碎吞下</div>
       </div>
     </div>
 
