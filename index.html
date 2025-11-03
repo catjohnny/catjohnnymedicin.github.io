@@ -23,6 +23,9 @@
     flex-direction: column;
     gap: 15px;
   }
+    #operationBox li strong {
+      color: #ffd700; /* 強調關鍵數值 */
+   }
   .med-item {
     background-color: #1b1b1b;
     border-radius: 10px;
@@ -101,8 +104,7 @@
         <label><input type="checkbox" class="chk-aspirin"> 病患有嚴重貧血、凝血缺陷或服用抗凝血劑</label>
         <label><input type="checkbox" class="chk-aspirin"> 病患有出血點、大片瘀血或疑似活動性病理性出血(例如:主動脈剝離、消化道出血)</label>
         <label><input type="checkbox" class="chk-aspirin"> 病患有顱內出血病史</label>
-        <label><input type="checkbox" class="chk-aspirin"> 需做12導程ECG</label>
-        <label><input type="checkbox" class="chk-aspirin"> 需雙側肢體脈壓差&lt;20mmHg</label>
+        <label><input type="checkbox" class="chk-aspirin"> 需雙側肢體脈壓差<strong>&lt;20mmHg</strong></label>
         
         <div class="result-box">口服3顆(300mg)絞碎吞下</div>
       </div>
