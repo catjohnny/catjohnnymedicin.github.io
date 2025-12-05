@@ -1,0 +1,5 @@
+{
+  "name": "ACS Drug Check",
+  "description": "ACS Drug Contraindication Checklist with local storage persistence and timestamp recording.",
+  "requestFramePermissions": []
+}
