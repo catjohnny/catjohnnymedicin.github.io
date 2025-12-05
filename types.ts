@@ -1,18 +1,21 @@
-export interface ChecklistItem {
+export interface DrugChecklist {
   id: string;
-  label: React.ReactNode; // Allow JSX for bolding specific parts
+  label: string;
+  isBold?: boolean; // For highlighting specific parts like "<90mmHg"
 }
 
-export interface DrugConfig {
+export interface Drug {
   id: string;
   name: string;
-  doseHighlight: string;
-  suffixNote: string;
-  actionLabel: React.ReactNode;
-  checklist: ChecklistItem[];
+  dosage: string;
+  action: string;
+  actionDetail: string; // The text inside the result box
+  checklist: DrugChecklist[];
 }
 
-export interface AppState {
-  checks: Record<string, boolean>; // Maps checklistItem.id to boolean
-  timestamps: Record<string, string>; // Maps drugConfig.id to timestamp string
+export interface DrugState {
+  checkedIds: string[]; // Array of checklist IDs that are checked
+  administeredTime: string | null; // Timestamp or null
 }
+
+export type AppState = Record<string, DrugState>;

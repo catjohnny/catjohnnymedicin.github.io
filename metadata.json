@@ -1,5 +1,5 @@
 {
-  "name": "ACS Drug Check",
-  "description": "ACS Drug Contraindication Checklist with local storage persistence and timestamp recording.",
+  "name": "ACS Drug Safety Checklist",
+  "description": "A safety checklist for administering ACS medications with persistent state and time recording.",
   "requestFramePermissions": []
 }
