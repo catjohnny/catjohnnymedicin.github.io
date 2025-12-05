@@ -1,22 +1,326 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ACS藥物禁忌症核對清單</title>
-    <!-- 加入 Tailwind CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
       body {
         background-color: #111;
         color: #fff;
         font-family: "Noto Sans TC", Arial, sans-serif;
       }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1a1a1a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #444; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+      }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+    <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo } = React;
+
+    // --- ICONS (Inline SVG components to avoid dependencies) ---
+    const Icons = {
+        ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>,
+        ChevronUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>,
+        CheckCircle: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>,
+        AlertCircle: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+        Clock: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+        ShieldCheck: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>,
+        RefreshCcw: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>,
+        Trash2: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+    };
+
+    // --- DATA ---
+    const DRUG_DATA = [
+      {
+        id: 'aspirin',
+        name: 'Aspirin',
+        dosage: '3顆',
+        action: '需做EKG',
+        actionDetail: '口服 3顆(300mg) 絞碎吞下',
+        checklist: [
+          { id: 'asp_1', label: '病患對阿斯匹林類過敏' },
+          { id: 'asp_2', label: '病患有嚴重貧血、凝血缺陷或服用抗凝血劑' },
+          { id: 'asp_3', label: '病患有出血點、大片瘀血或疑似活動性病理性出血(例如:主動脈剝離、消化道出血)' },
+          { id: 'asp_4', label: '病患有顱內出血病史' },
+          { id: 'asp_5', label: '需雙側肢體脈壓差 <20mmHg', isBold: true },
+        ],
+      },
+      {
+        id: 'ntg',
+        name: 'NTG最多',
+        dosage: '3顆',
+        action: 'T2可協助給予',
+        actionDetail: '口服 3顆(300mg) 絞碎吞下',
+        checklist: [
+          { id: 'ntg_1', label: '收縮壓 <90mmHg', isBold: true },
+          { id: 'ntg_2', label: '脈搏 <50 次/分鐘', isBold: true },
+          { id: 'ntg_3', label: '服用中西壯陽藥者' },
+          { id: 'ntg_4', label: '對NTG過敏' },
+          { id: 'ntg_5', label: '需做12導程ECG' },
+          { id: 'ntg_6', label: '右心衰竭者(如有頸靜脈怒張或下肢嚴重水腫等症狀)' },
+        ],
+      },
+      {
+        id: 'ticagrelor',
+        name: 'Ticagrelor',
+        dosage: '2顆',
+        action: '需致電MD確認',
+        actionDetail: '通知線上醫導 口服 2顆(180mg) 絞碎吞下',
+        checklist: [
+          { id: 'tic_1', label: '病患對 Ticagrelor (Brilinta)類過敏' },
+          { id: 'tic_2', label: '病患有嚴重貧血、凝血缺陷或服用抗凝血劑' },
+          { id: 'tic_3', label: '病患有出血點、大片瘀血或疑似活動性病理性出血(例如:主動脈剝離、消化道出血)' },
+          { id: 'tic_4', label: '病患有顱內出血病史' },
+          { id: 'tic_5', label: '病患有嚴重肝功能不全' },
+        ],
+      },
+    ];
+
+    const STORAGE_KEY = 'acs_checklist_v2';
+
+    // --- COMPONENTS ---
+    const DrugCard = ({ drug, isOpen, drugState, onToggleOpen, onToggleCheck, onRecordTime }) => {
+        const allChecked = useMemo(() => {
+            return drug.checklist.every((item) => drugState.checkedIds.includes(item.id));
+        }, [drug.checklist, drugState.checkedIds]);
+
+        const hasAdministered = !!drugState.administeredTime;
+
+        const renderTitle = () => (
+            <span className="text-xl md:text-2xl font-bold flex items-center justify-center gap-2">
+            {drug.name} <span className="text-yellow-400">{drug.dosage}</span> ▶️ {drug.action}
+            </span>
+        );
+
+        return (
+            <div className={`rounded-xl overflow-hidden border-2 transition-colors duration-300 ${isOpen ? 'border-pink-600 bg-neutral-900' : 'border-neutral-800 bg-neutral-900'}`}>
+            <button
+                onClick={onToggleOpen}
+                className={`w-full p-5 flex items-center justify-between text-left transition-all duration-300 ${
+                isOpen ? 'bg-pink-600 text-white shadow-[0_0_15px_rgba(233,30,99,0.5)]' : 'bg-neutral-900 text-gray-200 hover:bg-neutral-800'
+                }`}
+            >
+                <div className="w-full text-center relative">
+                    {renderTitle()}
+                    {hasAdministered && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center text-sm font-normal bg-green-900/50 px-2 py-1 rounded border border-green-500/50">
+                            <Icons.CheckCircle className="w-4 h-4 mr-1 text-green-400" />
+                            已執行
+                        </div>
+                    )}
+                </div>
+                <div className="absolute right-4">
+                    {isOpen ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+                </div>
+            </button>
+
+            {isOpen && (
+                <div className="p-4 md:p-6 space-y-4">
+                <div className="bg-neutral-800/50 p-4 rounded-lg border border-neutral-700">
+                    <p className="text-gray-300 font-bold mb-4 flex items-center gap-2">
+                    <Icons.AlertCircle className="w-5 h-5 text-sky-400" />
+                    請確認無以下禁忌症：
+                    </p>
+                    
+                    <div className="space-y-3">
+                    {drug.checklist.map((item) => {
+                        const isChecked = drugState.checkedIds.includes(item.id);
+                        return (
+                        <label
+                            key={item.id}
+                            className={`flex items-start p-3 rounded cursor-pointer transition-colors ${
+                            isChecked ? 'bg-neutral-700/60' : 'hover:bg-neutral-800'
+                            }`}
+                        >
+                            <div className="relative flex items-center">
+                            <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => onToggleCheck(item.id)}
+                                disabled={hasAdministered}
+                                className="peer h-6 w-6 cursor-pointer appearance-none rounded border-2 border-gray-500 bg-neutral-900 transition-all checked:border-green-500 checked:bg-green-600 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                            />
+                            <svg className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span className="ml-3 text-base md:text-lg text-gray-200 select-none leading-tight">
+                            {item.label}
+                            </span>
+                        </label>
+                        );
+                    })}
+                    </div>
+                </div>
+
+                <div className="pt-2">
+                    {!allChecked ? (
+                    <div className="p-4 text-center text-gray-500 italic bg-neutral-950/50 rounded-lg border border-neutral-800">
+                        請先勾選確認所有禁忌症以解鎖給藥選項
+                    </div>
+                    ) : (
+                        <button
+                            onClick={onRecordTime}
+                            disabled={hasAdministered}
+                            className={`w-full p-4 md:p-6 rounded-lg font-bold text-lg md:text-xl transition-all duration-300 transform flex flex-col items-center justify-center gap-2 shadow-lg
+                                ${hasAdministered 
+                                    ? 'bg-neutral-800 text-green-400 border-2 border-green-600/50 cursor-default' 
+                                    : 'bg-green-700 hover:bg-green-600 text-white hover:scale-[1.02] active:scale-[0.98] shadow-green-900/50 border-2 border-green-500'
+                                }`}
+                        >
+                            {hasAdministered ? (
+                                <>
+                                    <div className="flex items-center gap-2 text-2xl">
+                                        <Icons.CheckCircle className="w-8 h-8" />
+                                        <span>已完成紀錄</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-base font-mono bg-black/30 px-3 py-1 rounded-full">
+                                        <Icons.Clock className="w-4 h-4" />
+                                        {drugState.administeredTime}
+                                    </div>
+                                </>
+                            ) : (
+                                <div dangerouslySetInnerHTML={{ 
+                                    __html: drug.actionDetail.replace(/(\d+顆|\(\d+mg\))/g, '<span class="text-yellow-300 mx-1">$1</span>') 
+                                }} />
+                            )}
+                        </button>
+                    )}
+                </div>
+                </div>
+            )}
+            </div>
+        );
+    };
+
+    // --- MAIN APP ---
+    const App = () => {
+        const getInitialState = () => {
+            const initialState = {};
+            DRUG_DATA.forEach(drug => {
+                initialState[drug.id] = { checkedIds: [], administeredTime: null };
+            });
+            return initialState;
+        };
+
+        const [appState, setAppState] = useState(() => {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                return saved ? JSON.parse(saved) : getInitialState();
+            } catch (e) {
+                console.error("Failed to load", e);
+                return getInitialState();
+            }
+        });
+
+        const [openDrugId, setOpenDrugId] = useState(null);
+
+        useEffect(() => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        }, [appState]);
+
+        const handleToggleCheck = (drugId, checkId) => {
+            setAppState(prev => {
+                const drugState = prev[drugId];
+                const newCheckedIds = drugState.checkedIds.includes(checkId)
+                    ? drugState.checkedIds.filter(id => id !== checkId)
+                    : [...drugState.checkedIds, checkId];
+                return { ...prev, [drugId]: { ...drugState, checkedIds: newCheckedIds } };
+            });
+        };
+
+        const handleRecordTime = (drugId) => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            setAppState(prev => ({
+                ...prev,
+                [drugId]: { ...prev[drugId], administeredTime: timeString }
+            }));
+        };
+
+        const handleReset = () => {
+            if (window.confirm('🚨 嚴重警告 🚨\n\n確定要刪除所有紀錄嗎？\n按下確定後，所有勾選與時間將會永久清除，且無法復原。')) {
+                // 明確清除 LocalStorage
+                localStorage.removeItem(STORAGE_KEY);
+                // 強制重新載入頁面，確保狀態完全清空
+                window.location.reload();
+            }
+        };
+
+        const handleToggleOpen = (id) => {
+            setOpenDrugId(prev => (prev === id ? null : id));
+        };
+
+        return (
+            <div className="min-h-screen bg-[#111] text-white p-4 md:p-8 pb-24">
+                <div className="max-w-2xl mx-auto space-y-8">
+                    {/* Header */}
+                    <header className="flex flex-col items-center justify-center gap-4 mb-8">
+                        <div className="flex items-center gap-3">
+                            <Icons.ShieldCheck className="w-10 h-10 text-sky-400" />
+                            <h2 className="text-3xl md:text-4xl font-bold text-sky-400 tracking-tight">
+                                ACS 藥物禁忌症核對
+                            </h2>
+                        </div>
+                    </header>
+                    
+                    {/* Reset Button (Improved Visibility) */}
+                    <div className="flex justify-end">
+                         <button 
+                            onClick={handleReset}
+                            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg shadow-lg shadow-red-900/30 transition-all border border-red-500"
+                        >
+                            <Icons.Trash2 className="w-5 h-5" />
+                            重置所有紀錄
+                        </button>
+                    </div>
+
+                    {/* Drug List */}
+                    <div className="flex flex-col gap-4">
+                        {DRUG_DATA.map(drug => (
+                            <DrugCard
+                                key={drug.id}
+                                drug={drug}
+                                drugState={appState[drug.id] || {checkedIds: [], administeredTime: null}}
+                                isOpen={openDrugId === drug.id}
+                                onToggleOpen={() => handleToggleOpen(drug.id)}
+                                onToggleCheck={(checkId) => handleToggleCheck(drug.id, checkId)}
+                                onRecordTime={() => handleRecordTime(drug.id)}
+                            />
+                        ))}
+                    </div>
+                    
+                    <footer className="text-center text-neutral-600 text-sm mt-12 pb-8">
+                        <p>© ACS Safety Protocol Checklist</p>
+                    </footer>
+                </div>
+            </div>
+        );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+    </script>
+</body>
 </html>
